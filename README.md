@@ -93,7 +93,6 @@ If you use this data or code, please cite:
 
 ## Related Work
 
-- **Flash Balance (ΔB) framework:** [github.com/ricfulop/Flash-Balance-Solver](https://github.com/ricfulop/Flash-Balance-Solver)
 - **Universal phonon theory:** Ding, G. et al. "Unified theory of phonon in solids." *Nature Physics* **21**, 1911–1919 (2025). [doi:10.1038/s41567-025-03057-7](https://doi.org/10.1038/s41567-025-03057-7)
 
 ## License
