@@ -5,7 +5,7 @@
 
 Data and analysis code accompanying:
 
-> **Fulop, R.** "Voltivity (λ): A New Fundamental Material Constant Governing Electric Field–Lattice Coupling in Crystalline Solids." *Submitted* (2026).
+> **Fulop, R.** "Voltivity (λ): A Material Property Governing Electric Field-Lattice Coupling in Crystalline Solids. Research Square preprint" *Submitted* (2026).
 
 ## Overview
 
