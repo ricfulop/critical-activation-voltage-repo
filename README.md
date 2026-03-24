@@ -60,26 +60,47 @@ The invariant holds across **eight orders of magnitude in length scale**: from n
 | Ionic oxides | 0.19–0.53 V | Intermediate defect barriers |
 | Covalent carbides/nitrides | 0.32–2.7 V | Directional bonding, weak phonon coupling |
 
-## Figures
-
-### PRL Figure 1: Universal Unification
-
-`figure_prl_unification.py` generates the two-panel PRL figure:
-
-- **Panel (a):** Thermodynamic quantization — Vc distribution by material family
-- **Panel (b):** Scale-invariant unification map — E vs r spanning 8 orders of magnitude
-
-All 73 data points (including electromigration, thin-film, and macroscopic flash) are in the CSV — no hardcoded values in the figure script.
+## Quick Start
 
 ```bash
-# Generate PRL figure
-pip install numpy pandas matplotlib
+pip install numpy pandas matplotlib scipy
+
+# Generate PRL Figure 1 (universal unification)
 python figure_prl_unification.py
+
+# Generate PRL Figure 2 (macroscopic validation)
+cd fig2-reproducibility && python generate_figure2.py --onset
 ```
 
-### Validation figures
+## Figures
 
-`validate_lambda.py` reproduces the statistical analysis (parity plot, universal scaling collapse, λ hierarchy).
+### Figure 1: Universal Unification (Fig. 1 in paper)
+
+`figure_prl_unification.py` — two-panel PRL figure:
+
+- **Panel (a):** Thermodynamic quantization — Vc distribution by material family
+- **Panel (b):** Scale-invariant unification map — E vs r spanning 8 orders of magnitude, from nanoscale HfO₂ switching to macroscopic metallic flash
+
+All 73 data points read from the CSV — no hardcoded values.
+
+### Figure 2: Predictive Macroscopic Validation (Fig. 2 in paper)
+
+`fig2-reproducibility/generate_figure2.py` — three-panel PRL figure:
+
+- **Panel (a):** Tungsten — measured ρ_eff vs CRC Joule prediction, anomaly onset at Vc = 89.1 mV
+- **Panel (b):** Platinum — same analysis, Vc = 49.3 mV
+- **Panel (c):** Gauge-length independence — ρ_eff/ρ_CRC for five W wires (61–86 mm) collapsing together
+
+Raw 10 kHz PicoScope IV data included for full reproducibility. See [`fig2-reproducibility/README.md`](fig2-reproducibility/README.md) for data description and thermal model details.
+
+| Material | Vc (mV) | Predicted E (V/m) | Measured E (V/m) |
+|---|---|---|---|
+| W | 89.1 | 1.04 | 1.12 ± 0.06 |
+| Pt | 49.3 | 0.71 | 0.79 ± 0.06 |
+
+### Supplementary Analysis
+
+`validate_lambda.py` reproduces the statistical validation (parity plot, universal scaling collapse, λ hierarchy by family).
 
 ## Repository Structure
 
@@ -87,9 +108,16 @@ python figure_prl_unification.py
 voltivity-repo/
 ├── voltivity_dataset.csv            # 73-point dataset (all phenomena)
 ├── figure_prl_unification.py        # PRL Fig. 1 (unification figure)
-├── figure_prl_unification.pdf       # Vector output
-├── figure_prl_unification.png       # Raster output
-├── validate_lambda.py               # Statistical analysis & validation figures
+├── figure_prl_unification.pdf       # Fig. 1 vector output
+├── figure_prl_unification.png       # Fig. 1 raster output
+├── validate_lambda.py               # Statistical analysis & validation
+├── fig2-reproducibility/            # PRL Fig. 2 (macroscopic validation)
+│   ├── README.md                    # Data description & thermal model
+│   ├── generate_figure2.py          # Figure generation + onset extraction
+│   ├── analysis/
+│   │   └── iv_analysis.py           # IV analysis module
+│   ├── data/                        # Raw 10 kHz PicoScope recordings (6 runs)
+│   └── output/                      # Generated figures
 ├── aps-prl-figures/
 │   └── SKILL.md                     # APS/PRL figure design guidelines
 ├── README.md
