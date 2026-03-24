@@ -92,7 +92,7 @@ C = {
 DATA_PATH = Path(__file__).parent / 'voltivity_dataset.csv'
 df = pd.read_csv(DATA_PATH)
 
-df['Vc'] = df['lambda(V·um)'] * 1e-4          # V·μm → V
+# SI units for plotting
 df['r_m'] = df['r_fitted(um)'] * 1e-6         # μm → m
 df['E_Vm'] = df['E(V/cm)'] * 100              # V/cm → V/m
 
@@ -110,6 +110,12 @@ CAT_MAP = {
 }
 df['Category'] = df['Family'].map(CAT_MAP)
 
+# Split by phenomenon (all data now lives in the CSV)
+df_flash    = df[df['Phenomenon'] == 'flash_sintering']
+df_blech    = df[df['Phenomenon'] == 'electromigration']
+df_macro    = df[df['Phenomenon'] == 'macro_flash']
+df_thinfilm = df[df['Phenomenon'] == 'thin_film_switch']
+
 CATS = ['Metals', 'Perovskites', 'Ionic Oxides', 'Covalent']
 CAT_LABELS = ['Metals', 'Perovskites', 'Ionic\nOxides', 'Covalent']
 CAT_COLORS = {
@@ -125,29 +131,6 @@ CAT_MARKERS = {
     'Covalent':     '^',
 }
 
-# Macroscopic metal flash (experimental — not in CSV)
-MACRO_R  = np.array([8.60e-2, 6.90e-2])  # m  (W: 86 mm, Pt: 69 mm)
-MACRO_E  = np.array([1.05,    0.72])     # V/m
-MACRO_VC = MACRO_E * MACRO_R             # V  (W: 0.090, Pt: 0.050)
-
-# Blech electromigration (literature)
-# Cu: Lee et al., Appl. Phys. Lett. 79, 3236 (2001). DOI:10.1063/1.1418034
-#     (jL)_th = 3700 A/cm, ρ(350°C) = 3.8e-8 Ω·m → Vc = 0.014 V
-# Al: Blech, J. Appl. Phys. 47, 1203 (1976). DOI:10.1063/1.322742
-#     (jL)_th = 1200 A/cm, ρ(200°C) = 4.7e-8 Ω·m → Vc = 0.0056 V
-BLECH_R  = np.array([1.00e-5, 1.00e-5])  # m  (typical test length 10 μm)
-BLECH_E  = np.array([1400.0,  560.0])    # V/m  (E = Vc / r)
-BLECH_VC = BLECH_E * BLECH_R             # V  (Cu: 0.014, Al: 0.0056)
-BLECH_LABELS = ['Cu', 'Al']
-
-# Thin-film field-induced crystallization (literature)
-# Lin et al., npj Quantum Materials 9, 42 (2024). DOI:10.1038/s41535-024-00142-w
-# Lederer et al., Sci. Rep. 11, 22266 (2021). DOI:10.1038/s41598-021-01724-2
-# HfO₂ / Hf₀.₅Zr₀.₅O₂ thin film: r ~ 10 nm, E ~ 2×10⁸ V/m → Vc = 2.0 V
-THINFILM_R  = np.array([1.00e-8])   # m  (10 nm)
-THINFILM_E  = np.array([2.00e8])    # V/m
-THINFILM_VC = THINFILM_E * THINFILM_R  # V  (2.0)
-
 # ── Create figure ─────────────────────────────────────────────────────────────
 fig, (ax1, ax2) = plt.subplots(
     1, 2, figsize=(6.75, 3.2),
@@ -159,40 +142,42 @@ fig, (ax1, ax2) = plt.subplots(
 # ═════════════════════════════════════════════════════════════════════════════
 np.random.seed(42)
 
+# Flash sintering data (main dataset, circles by category)
 for i, cat in enumerate(CATS):
-    vc = df.loc[df['Category'] == cat, 'Vc'].values
+    vc = df_flash.loc[df_flash['Category'] == cat, 'Vc(V)'].values
+    if len(vc) == 0:
+        continue
     jitter = np.random.uniform(-0.20, 0.20, len(vc))
     ax1.scatter(
         i + jitter, vc,
         c=CAT_COLORS[cat], s=25, alpha=0.75,
         edgecolors='k', linewidths=0.3, zorder=3,
     )
-    # horizontal median line
     med = np.median(vc)
     ax1.plot([i - 0.28, i + 0.28], [med, med],
              color=CAT_COLORS[cat], lw=1.2, zorder=2, solid_capstyle='round')
 
-# Macroscopic metal flash points (stars)
-macro_jitter = np.array([-0.08, 0.08])
+# Macroscopic metal flash (from CSV)
+macro_jitter = np.random.uniform(-0.08, 0.08, len(df_macro))
 ax1.scatter(
-    0 + macro_jitter, MACRO_VC,
+    0 + macro_jitter, df_macro['Vc(V)'].values,
     c=CAT_COLORS['Metals'], s=25, marker='*',
     edgecolors='k', linewidths=0.3, zorder=4,
     label='Macro Flash (W, Pt)',
 )
 
-# Blech electromigration points (pentagons)
-blech_jitter = np.array([-0.12, 0.12])
+# Blech electromigration (from CSV)
+blech_jitter = np.random.uniform(-0.12, 0.12, len(df_blech))
 ax1.scatter(
-    0 + blech_jitter, BLECH_VC,
+    0 + blech_jitter, df_blech['Vc(V)'].values,
     c=C['vermillion'], s=25, marker='p',
     edgecolors='k', linewidths=0.3, zorder=4,
     label='Blech EM (Cu, Al)',
 )
 
-# Thin-film switching (HfO₂) — plot in Ionic Oxides column
+# Thin-film switching (from CSV)
 ax1.scatter(
-    [2 + 0.15], THINFILM_VC,
+    [2 + 0.15], df_thinfilm['Vc(V)'].values,
     c=C['sky'], s=25, marker='h',
     edgecolors='k', linewidths=0.3, zorder=4,
     label=r'Thin-Film Switch (HfO$_2$)',
@@ -216,7 +201,7 @@ r_line = np.logspace(-9, 0.5, 300)
 # Diagonal Vc = const reference lines
 Vc_blech   = 0.014   # Electromigration (grain-boundary, Z*~10)
 Vc_metals  = 0.10    # Bulk metals (Ni, W)
-Vc_oxides  = np.median(df.loc[df['Category'] == 'Ionic Oxides', 'Vc'])
+Vc_oxides  = np.median(df_flash.loc[df_flash['Category'] == 'Ionic Oxides', 'Vc(V)'])
 Vc_carbide = 2.70    # Strongly covalent carbides (WC)
 
 for vc_val, color, ls in [
@@ -238,37 +223,37 @@ def loglog_rotation(ax):
     display_aspect = bbox.height / bbox.width
     return -np.degrees(np.arctan(display_aspect / data_aspect))
 
-# Microscale data from CSV (real data)
+# Flash sintering data by category
 for cat in CATS:
-    mask = df['Category'] == cat
+    mask = df_flash['Category'] == cat
     if mask.sum() == 0:
         continue
     ax2.scatter(
-        df.loc[mask, 'r_m'], df.loc[mask, 'E_Vm'],
+        df_flash.loc[mask, 'r_m'], df_flash.loc[mask, 'E_Vm'],
         c=CAT_COLORS[cat], marker=CAT_MARKERS[cat],
         s=25, alpha=0.8, edgecolors='k', linewidths=0.3, zorder=4,
         label=cat,
     )
 
-# Blech electromigration (Cu, Al — literature)
+# Blech electromigration (from CSV)
 ax2.scatter(
-    BLECH_R, BLECH_E,
+    df_blech['r_m'], df_blech['E_Vm'],
     color=C['vermillion'], marker='p', s=25,
     edgecolors='k', linewidths=0.5, zorder=5,
     label='Blech EM',
 )
 
-# Macroscopic metal flash (W, Pt)
+# Macroscopic metal flash (from CSV)
 ax2.scatter(
-    MACRO_R, MACRO_E,
+    df_macro['r_m'], df_macro['E_Vm'],
     color=CAT_COLORS['Metals'], marker='*', s=25,
     edgecolors='k', linewidths=0.5, zorder=5,
     label='Macro Flash',
 )
 
-# Thin-film resistive switching (HfO₂)
+# Thin-film switching (from CSV)
 ax2.scatter(
-    THINFILM_R, THINFILM_E,
+    df_thinfilm['r_m'], df_thinfilm['E_Vm'],
     color=C['sky'], marker='h', s=25,
     edgecolors='k', linewidths=0.5, zorder=5,
     label=r'HfO$_2$ Switch',
