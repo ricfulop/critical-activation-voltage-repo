@@ -5,7 +5,7 @@
 
 Data, analysis code, and figures accompanying:
 
-> **Fulop, R. & Gershenfeld, N.** "Universal Critical Activation Voltage for Phonon-Mediated Field-Driven Phenomena." *Submitted to Physical Review Letters* (2026).
+> **Fulop, R. & Gershenfeld, N.** "Critical Activation Voltage for Phonon-Mediated Field-Driven Phenomena." *Submitted to Physical Review Letters* (2026).
 
 ## Overview
 
