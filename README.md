@@ -9,7 +9,7 @@ Data, analysis code, and figures accompanying:
 
 ## Overview
 
-Field-driven phenomena — from flash sintering to electromigration — exhibit threshold fields spanning six orders of magnitude. We show that the product of the threshold electric field and the onset activation coherence length is a **universal critical activation voltage**:
+Field-driven phenomena, from flash sintering to electromigration, exhibit threshold fields spanning six orders of magnitude. We show that the product of the threshold electric field and the onset activation coherence length is a **critical activation voltage**:
 
 ```
 Vc = E × r ≈ 0.1–2.7 V
