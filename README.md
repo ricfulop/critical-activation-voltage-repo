@@ -1,4 +1,4 @@
-# Universal Critical Activation Voltage for Phonon-Mediated Field-Driven Phenomena
+# Critical Activation Voltage for Phonon-Mediated Field-Driven Phenomena
 
 [![DOI](https://zenodo.org/badge/DOI/PLACEHOLDER.svg)](https://doi.org/PLACEHOLDER)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
