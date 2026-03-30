@@ -85,22 +85,22 @@ OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 SHUNT = 0.1  # A/mV (100 A = 1 V shunt)
 
 REPRESENTATIVE = [
-    {"file": "2026-02-25 Boulder W 0.25mm 86mm run 1 - 4_32pm_combined.csv",
+    {"file": "2026-02-25 W 0.25mm 86mm run 1 - 4_32pm_combined.csv",
      "material": "W", "diameter": 0.25, "length": 86},
-    {"file": "2026-02-25 Boulder Pt 0.127mm 69mm run 1 - 5_24pm_combined.csv",
+    {"file": "2026-02-25 Pt 0.127mm 69mm run 1 - 5_24pm_combined.csv",
      "material": "Pt", "diameter": 0.1311, "length": 69},
 ]
 
 W_RUNS = [
-    {"file": "2026-02-25 Boulder W 0.25mm 86mm run 1 - 4_32pm_combined.csv",
+    {"file": "2026-02-25 W 0.25mm 86mm run 1 - 4_32pm_combined.csv",
      "material": "W", "diameter": 0.25, "length": 86},
-    {"file": "2026-02-25 Boulder W 0.25mm 75mm run 2 - 4_44pm_combined.csv",
+    {"file": "2026-02-25 W 0.25mm 75mm run 2 - 4_44pm_combined.csv",
      "material": "W", "diameter": 0.25, "length": 75},
-    {"file": "2026-02-25 Boulder W 0.25mm 79mm run 3 - 4_50pm_combined.csv",
+    {"file": "2026-02-25 W 0.25mm 79mm run 3 - 4_50pm_combined.csv",
      "material": "W", "diameter": 0.25, "length": 79},
-    {"file": "2026-02-25 Boulder W 0.25mm 61mm run 4 - 4_54pm_combined.csv",
+    {"file": "2026-02-25 W 0.25mm 61mm run 4 - 4_54pm_combined.csv",
      "material": "W", "diameter": 0.25, "length": 61},
-    {"file": "2026-02-25 Boulder W 0.25mm 80mm run 5 - 4_59pm_combined.csv",
+    {"file": "2026-02-25 W 0.25mm 80mm run 5 - 4_59pm_combined.csv",
      "material": "W", "diameter": 0.25, "length": 80},
 ]
 
@@ -368,11 +368,12 @@ def generate_figure():
         w_data.append((run, load_and_process(run)))
 
     # Build figure
-    fig = plt.figure(figsize=(6.75, 5.5))
-    gs = fig.add_gridspec(2, 2, hspace=0.42, wspace=0.32, height_ratios=[1, 0.9])
-    ax_w = fig.add_subplot(gs[0, 0])
-    ax_pt = fig.add_subplot(gs[0, 1])
-    ax_ratio = fig.add_subplot(gs[1, :])
+    fig = plt.figure(figsize=(6.75, 2.8))
+    gs_outer = fig.add_gridspec(1, 2, wspace=0.30, width_ratios=[2.2, 1])
+    gs_ab = gs_outer[0].subgridspec(1, 2, wspace=0.05)
+    ax_w = fig.add_subplot(gs_ab[0, 0])
+    ax_pt = fig.add_subplot(gs_ab[0, 1], sharey=ax_w)
+    ax_ratio = fig.add_subplot(gs_outer[0, 1])
 
     # ── Panel (a): W ──
     d = rep_data["W"]
@@ -397,9 +398,7 @@ def generate_figure():
     ax_w.set_xlim(0, 45); ax_w.set_ylim(0, 100)
     ax_w.set_xlabel("Time (s)")
     ax_w.set_ylabel(r"Resistivity ($\mu\Omega\cdot$cm)")
-    ax_w.set_title("W, 0.25 mm, $L$ = 86 mm", fontsize=9, loc="left")
-    ax_w.legend(fontsize=6, loc="lower right")
-    add_panel_label(ax_w, "a")
+    ax_w.set_title(r"$\mathbf{(a)}$ W, 0.25 mm, $L$ = 86 mm", fontsize=9, loc="left")
 
     # ── Panel (b): Pt ──
     d = rep_data["Pt"]
@@ -423,10 +422,9 @@ def generate_figure():
                        textcoords="offset points")
     ax_pt.set_xlim(0, 30); ax_pt.set_ylim(0, 100)
     ax_pt.set_xlabel("Time (s)")
-    ax_pt.set_ylabel(r"Resistivity ($\mu\Omega\cdot$cm)")
-    ax_pt.set_title("Pt, 0.131 mm, $L$ = 69 mm", fontsize=9, loc="left")
+    plt.setp(ax_pt.get_yticklabels(), visible=False)
+    ax_pt.set_title(r"$\mathbf{(b)}$ Pt, 0.131 mm, $L$ = 69 mm", fontsize=9, loc="left")
     ax_pt.legend(fontsize=6, loc="lower right")
-    add_panel_label(ax_pt, "b")
 
     # ── Panel (c): gauge-length independence ──
     ratio_colors = [C_BLUE, C_ORANGE, C_GREEN, C_VERMILLION, C_PURPLE]
@@ -463,7 +461,7 @@ def generate_figure():
         J_max = float(np.max(d["J"]))
         duration = d["t"][-1] - d["t"][0]
         ramp = (J_max / duration * 60) if duration > 0 else 0
-        lbl = f'{run["length"]} mm ({ramp:.0f} / {J_max:.0f})'
+        lbl = f'{run["length"]}'
         valid = np.isfinite(ratio) & both_trim[:len(ratio)]
         ax_ratio.plot(t_off[valid], ratio[valid], "-", lw=0.7,
                       color=ratio_colors[i], label=lbl)
@@ -473,15 +471,17 @@ def generate_figure():
     xlim = ax_ratio.get_xlim()
     ax_ratio.fill_between([xlim[0], xlim[1]], 0, 1.0,
                           alpha=0.06, color=C_GREEN, zorder=0)
-    ax_ratio.annotate(r"$\rho_\mathrm{eff} < \rho_\mathrm{CRC}$  (anomaly)",
-                      xy=(0.55, 0.12), xycoords="axes fraction", fontsize=8,
-                      ha="center", color=C_GREEN, fontstyle="italic")
+    ax_ratio.annotate(r"$\rho_\mathrm{eff} < \rho_\mathrm{CRC}$",
+                      xy=(0.45, 0.35), xycoords="axes fraction", fontsize=7,
+                      ha="center", color=C_GREEN, fontstyle="italic",
+)
     ax_ratio.set_xlabel(r"Time from $V_c$ crossing (s)")
     ax_ratio.set_ylabel(r"$\rho_\mathrm{eff}\,/\,\rho_\mathrm{CRC}$")
-    ax_ratio.legend(fontsize=6, loc="upper right", ncol=2,
-                    title="W gauge lengths (0.25 mm)\nRamp / Hold (A/mm²/min / A/mm²)",
-                    title_fontsize=6)
-    add_panel_label(ax_ratio, "c", x=-0.08)
+    ax_ratio.legend(fontsize=5, loc="upper right", ncol=1,
+                    title="$L$ (mm)",
+                    title_fontsize=5, borderpad=0.3,
+                    handlelength=1.0, labelspacing=0.2)
+    ax_ratio.set_title(r"$\mathbf{(c)}$", fontsize=9, loc="left")
 
     out = os.path.join(OUTPUT_DIR, "fig2_prl_v2")
     fig.savefig(out + ".pdf", dpi=600, bbox_inches="tight", pad_inches=0.05)

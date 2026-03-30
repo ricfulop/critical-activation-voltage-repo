@@ -21,12 +21,12 @@ fig2-reproducibility-package/
 │   ├── __init__.py
 │   └── iv_analysis.py           # IV analysis module (onset detection, thermal model)
 ├── data/                        # raw 10 kHz PicoScope IV recordings
-│   ├── 2026-02-25 Boulder W 0.25mm 86mm run 1 - 4_32pm_combined.csv
-│   ├── 2026-02-25 Boulder W 0.25mm 75mm run 2 - 4_44pm_combined.csv
-│   ├── 2026-02-25 Boulder W 0.25mm 79mm run 3 - 4_50pm_combined.csv
-│   ├── 2026-02-25 Boulder W 0.25mm 61mm run 4 - 4_54pm_combined.csv
-│   ├── 2026-02-25 Boulder W 0.25mm 80mm run 5 - 4_59pm_combined.csv
-│   └── 2026-02-25 Boulder Pt 0.127mm 69mm run 1 - 5_24pm_combined.csv
+│   ├── 2026-02-25 W 0.25mm 86mm run 1 - 4_32pm_combined.csv
+│   ├── 2026-02-25 W 0.25mm 75mm run 2 - 4_44pm_combined.csv
+│   ├── 2026-02-25 W 0.25mm 79mm run 3 - 4_50pm_combined.csv
+│   ├── 2026-02-25 W 0.25mm 61mm run 4 - 4_54pm_combined.csv
+│   ├── 2026-02-25 W 0.25mm 80mm run 5 - 4_59pm_combined.csv
+│   └── 2026-02-25 Pt 0.127mm 69mm run 1 - 5_24pm_combined.csv
 └── output/                      # generated figures appear here
 ```
 

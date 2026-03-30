@@ -133,7 +133,7 @@ CAT_MARKERS = {
 
 # ── Create figure ─────────────────────────────────────────────────────────────
 fig, (ax1, ax2) = plt.subplots(
-    1, 2, figsize=(6.75, 3.2),
+    1, 2, figsize=(6.75, 2.56),
     gridspec_kw={'width_ratios': [1, 1], 'wspace': 0.38},
 )
 
@@ -287,9 +287,9 @@ for vc_val, color, r_pos in [
 
 # Scale-regime annotations (inside axes, away from edges)
 for x, y, txt in [
-    (3e-8, 4e6, 'Nanoscale'),
-    (5e-5, 5e4, 'Microscale'),
-    (8e-3, 8e0, 'Macroscale'),
+    (8e-8, 1e8, 'Nanoscale'),
+    (5e-4, 8e4, 'Microscale'),
+    (2e-2, 8e0, 'Macroscale'),
 ]:
     ax2.text(x, y, ital(txt), fontsize=7, ha='center', color='0.45')
 
