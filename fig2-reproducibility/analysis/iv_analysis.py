@@ -198,8 +198,18 @@ def compute_thermal_rho_vs_J(J_array, material, wire_diameter_mm, wire_length_mm
         kappa_T = kappa_func(T_grid)
         radiation = eps_T * SIGMA_SB * (T_grid**4 - T_ambient**4) * perimeter_over_area
         conduction = kappa_T * (T_grid - T_ambient) * 8.0 / L_m**2
+        dT_air = np.maximum(T_grid - T_ambient, 0)
+        Tf = (T_grid + T_ambient) / 2
+        nu_air = 1.5e-5 * (Tf / 300) ** 1.7
+        k_air_v = 0.026 * (Tf / 300) ** 0.8
+        beta_air = 1.0 / Tf
+        Ra = 9.81 * beta_air * dT_air * d_m**3 / nu_air**2 * 0.71
+        cc_denom = (1 + (0.559 / 0.71) ** (9.0 / 16)) ** (8.0 / 27)
+        Nu = (0.60 + 0.387 * np.maximum(Ra, 0) ** (1.0 / 6) / cc_denom) ** 2
+        h_conv = Nu * k_air_v / d_m
+        convection = h_conv * dT_air * perimeter_over_area
 
-        balance = joule - radiation - conduction
+        balance = joule - radiation - conduction - convection
 
         # Find zero crossing (Joule = losses)
         sign_changes = np.where(np.diff(np.sign(balance)))[0]

@@ -264,7 +264,20 @@ def load_and_process(run, bin_dt=0.1):
         alpha_T = kap / (rm * cpT)
         df = min(1.0, 2.0 * np.sqrt(alpha_T * t_el) / L)
         cond = kap * (Tk - 300) * 8.0 / L ** 2 * df
-        T_w[k + 1] = max(300, min(Tk + (joule - rad - cond) / (rm * cpT) * dt, Tm))
+        dT_air = Tk - 300
+        if dT_air > 0:
+            Tf = (Tk + 300) / 2
+            nu_air = 1.5e-5 * (Tf / 300) ** 1.7
+            k_air = 0.026 * (Tf / 300) ** 0.8
+            beta_air = 1.0 / Tf
+            Ra = 9.81 * beta_air * dT_air * d_m ** 3 / nu_air ** 2 * 0.71
+            cc_denom = (1 + (0.559 / 0.71) ** (9.0 / 16)) ** (8.0 / 27)
+            Nu = (0.60 + 0.387 * Ra ** (1.0 / 6) / cc_denom) ** 2
+            h_conv = Nu * k_air / d_m
+            conv = h_conv * dT_air * P_A
+        else:
+            conv = 0.0
+        T_w[k + 1] = max(300, min(Tk + (joule - rad - cond - conv) / (rm * cpT) * dt, Tm))
 
     rho_crc = np.array([float(rf(Ti)) for Ti in T_w]) * scale
 
