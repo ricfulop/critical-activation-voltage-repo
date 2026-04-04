@@ -89,7 +89,7 @@ C = {
 }
 
 # ── Load and transform data ──────────────────────────────────────────────────
-DATA_PATH = Path(__file__).parent / 'voltivity_dataset.csv'
+DATA_PATH = Path(__file__).parent.parent / 'voltivity_dataset.csv'
 df = pd.read_csv(DATA_PATH)
 
 # SI units for plotting
@@ -297,7 +297,7 @@ ax2.text(-0.14, 1.06, bold('(b)'), transform=ax2.transAxes,
          fontsize=10, va='top', ha='left')
 
 # ── Save ──────────────────────────────────────────────────────────────────────
-OUT = Path(__file__).parent
+OUT = Path(__file__).parent / 'output'
 fig.savefig(OUT / 'figure_prl_unification.pdf')
 fig.savefig(OUT / 'figure_prl_unification.png', dpi=300)
 print(f"Saved: {OUT / 'figure_prl_unification.pdf'}")

@@ -19,7 +19,7 @@ from pathlib import Path
 
 # ── Load data ────────────────────────────────────────────────────────────────
 
-DATA_PATH = Path(__file__).parent / "voltivity_dataset.csv"
+DATA_PATH = Path(__file__).parent.parent / "voltivity_dataset.csv"
 FIGURES_PATH = Path(__file__).parent / "figures"
 FIGURES_PATH.mkdir(exist_ok=True)
 

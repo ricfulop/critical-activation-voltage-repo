@@ -88,7 +88,7 @@ REPRESENTATIVE = [
     {"file": "2026-02-25 W 0.25mm 86mm run 1 - 4_32pm_combined.csv",
      "material": "W", "diameter": 0.25, "length": 86},
     {"file": "2026-02-25 Pt 0.127mm 69mm run 1 - 5_24pm_combined.csv",
-     "material": "Pt", "diameter": 0.1311, "length": 69},
+     "material": "Pt", "diameter": 0.127, "length": 69},
 ]
 
 W_RUNS = [
@@ -240,6 +240,8 @@ def load_and_process(run, bin_dt=0.1):
     win = min(21, len(rho_b) // 2 * 2 - 1)
     rho_eff = savgol_filter(rho_b, win, 3) if win >= 5 else rho_b.copy()
 
+    J_smooth = savgol_filter(J_b, win, 3) if win >= 5 else J_b.copy()
+
     # Full transient thermal model
     rf = _build_interpolator(RHO_VS_T[mat])
     ef = _build_interpolator(EMISSIVITY_VS_T[mat])
@@ -255,7 +257,7 @@ def load_and_process(run, bin_dt=0.1):
         dt = t_b[k + 1] - t_b[k]
         if dt <= 0:
             T_w[k + 1] = T_w[k]; continue
-        Tk = T_w[k]; J_SI = J_b[k] * 1e6
+        Tk = T_w[k]; J_SI = J_smooth[k] * 1e6
         rv = float(rf(Tk)) * 1e-8
         kap = float(kf(Tk)); cpT = float(cf(Tk)); eps = float(ef(Tk))
         joule = J_SI ** 2 * rv
@@ -408,6 +410,10 @@ def generate_figure():
                       xy=(d["t_Vc"], 90), fontsize=7, color=C_VERMILLION,
                       ha="left", va="center", xytext=(4, 0),
                       textcoords="offset points")
+        ax_w.annotate('Ramp 147 A/mm$^2$/min, Hold 6.0 A',
+                      xy=(d["t_Vc"], 90), fontsize=5.5, color=C_BLACK,
+                      ha="left", va="center", xytext=(4, -20),
+                      textcoords="offset points")
     ax_w.set_xlim(0, 45); ax_w.set_ylim(0, 100)
     ax_w.set_xlabel("Time (s)")
     ax_w.set_ylabel(r"Resistivity ($\mu\Omega\cdot$cm)")
@@ -433,10 +439,14 @@ def generate_figure():
                        xy=(d["t_Vc"], 90), fontsize=7, color=C_VERMILLION,
                        ha="left", va="center", xytext=(4, 0),
                        textcoords="offset points")
+        ax_pt.annotate('Ramp 260 A/mm$^2$/min, Hold 1.6 A',
+                       xy=(d["t_Vc"], 90), fontsize=5.5, color=C_BLACK,
+                       ha="left", va="center", xytext=(4, -20),
+                       textcoords="offset points")
     ax_pt.set_xlim(0, 30); ax_pt.set_ylim(0, 100)
     ax_pt.set_xlabel("Time (s)")
     plt.setp(ax_pt.get_yticklabels(), visible=False)
-    ax_pt.set_title(r"$\mathbf{(b)}$ Pt, 0.131 mm, $L$ = 69 mm", fontsize=9, loc="left")
+    ax_pt.set_title(r"$\mathbf{(b)}$ Pt, 0.127 mm, $L$ = 69 mm", fontsize=9, loc="left")
     ax_pt.legend(fontsize=6, loc="lower right")
 
     # ── Panel (c): gauge-length independence ──
@@ -485,7 +495,7 @@ def generate_figure():
     ax_ratio.fill_between([xlim[0], xlim[1]], 0, 1.0,
                           alpha=0.06, color=C_GREEN, zorder=0)
     ax_ratio.annotate(r"$\rho_\mathrm{eff} < \rho_\mathrm{CRC}$",
-                      xy=(0.45, 0.35), xycoords="axes fraction", fontsize=7,
+                      xy=(0.45, 0.22), xycoords="axes fraction", fontsize=7,
                       ha="center", color=C_GREEN, fontstyle="italic",
 )
     ax_ratio.set_xlabel(r"Time from $V_c$ crossing (s)")
