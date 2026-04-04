@@ -115,3 +115,4 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 Ric Fulop — ricfulop@mit.edu
 Center for Bits and Atoms, Massachusetts Institute of Technology
+[Google Scholar](https://scholar.google.com/citations?hl=en&user=N-PCwJ4AAAAJ&view_op=list_works&authuser=1)

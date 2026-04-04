@@ -14,8 +14,45 @@ Requires: numpy, pandas, matplotlib
 
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
+
+plt.rcParams.update({
+    'text.usetex': False,
+    'mathtext.fontset': 'stix',
+    'font.family': 'serif',
+    'font.serif': ['Times New Roman', 'STIX', 'DejaVu Serif'],
+    'font.size': 10, 'axes.labelsize': 10,
+    'xtick.labelsize': 9, 'ytick.labelsize': 9,
+    'legend.fontsize': 8, 'legend.title_fontsize': 8,
+    'axes.linewidth': 0.5, 'axes.formatter.use_mathtext': True,
+    'lines.linewidth': 0.8, 'lines.markersize': 4,
+    'patch.linewidth': 0.5,
+    'xtick.direction': 'in', 'ytick.direction': 'in',
+    'xtick.top': True, 'xtick.bottom': True,
+    'ytick.left': True, 'ytick.right': True,
+    'xtick.minor.visible': True, 'ytick.minor.visible': True,
+    'xtick.major.size': 3.0, 'ytick.major.size': 3.0,
+    'xtick.minor.size': 1.5, 'ytick.minor.size': 1.5,
+    'xtick.major.width': 0.5, 'ytick.major.width': 0.5,
+    'xtick.minor.width': 0.5, 'ytick.minor.width': 0.5,
+    'legend.frameon': True, 'legend.facecolor': 'white',
+    'legend.edgecolor': 'white', 'legend.framealpha': 1,
+    'axes.grid': False,
+    'figure.dpi': 150, 'savefig.dpi': 600,
+    'savefig.bbox': 'tight', 'savefig.pad_inches': 0.05,
+})
+
+C_BLUE = '#0072B2'
+C_ORANGE = '#E69F00'
+C_GREEN = '#009E73'
+C_VERMILLION = '#D55E00'
+C_SKY = '#56B4E9'
+C_PURPLE = '#CC79A7'
+C_BLACK = '#000000'
+C_GRAY = '#999999'
 
 # ── Load data ────────────────────────────────────────────────────────────────
 
@@ -119,21 +156,22 @@ print("5. GENERATING FIGURES")
 print("=" * 70)
 
 # Figure 1: Parity plot (T_onset predicted vs measured)
-fig, ax = plt.subplots(figsize=(6, 6))
-ax.scatter(df["T_onset(K)"], df["T_pred(K)"], c="steelblue", s=30, alpha=0.7, edgecolors="k", linewidths=0.3)
+fig, ax = plt.subplots(figsize=(3.375, 3.375))
+ax.scatter(df["T_onset(K)"], df["T_pred(K)"], c=C_BLUE, s=20, alpha=0.7,
+           edgecolors="k", linewidths=0.3, zorder=3)
 lims = [df["T_onset(K)"].min() - 50, df["T_onset(K)"].max() + 50]
-ax.plot(lims, lims, "k-", linewidth=1, label="Perfect prediction")
+ax.plot(lims, lims, "-", color=C_BLACK, linewidth=0.8, label="Perfect prediction")
 ax.fill_between(lims, [l * 0.95 for l in lims], [l * 1.05 for l in lims],
-                alpha=0.15, color="green", label="±5% envelope")
-ax.set_xlabel("Measured T_onset (K)", fontsize=12)
-ax.set_ylabel("Predicted T_onset (K)", fontsize=12)
-ax.set_title("Voltivity Prediction: Onset Temperature", fontsize=13)
-ax.legend(fontsize=10)
+                alpha=0.15, color=C_GREEN, label=r"$\pm$5% envelope")
+ax.set_xlabel(r"Measured $T_\mathrm{onset}$ (K)")
+ax.set_ylabel(r"Predicted $T_\mathrm{onset}$ (K)")
+ax.legend(loc="upper left")
 ax.set_xlim(lims)
 ax.set_ylim(lims)
 ax.set_aspect("equal")
 fig.tight_layout()
-fig.savefig(FIGURES_PATH / "parity_plot.png", dpi=200)
+fig.savefig(FIGURES_PATH / "parity_plot.png", dpi=300)
+fig.savefig(FIGURES_PATH / "parity_plot.pdf")
 print(f"  Saved figures/parity_plot.png")
 
 # Figure 2: Universal scaling collapse
@@ -143,20 +181,22 @@ families = sorted(df["Family"].unique())
 for i, fam in enumerate(families):
     family_colors[fam] = cmap(i / len(families))
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
+fig, axes = plt.subplots(1, 2, figsize=(6.75, 3.0))
 
 # Panel a: Raw r vs E
 ax = axes[0]
 for fam in families:
     mask = df["Family"] == fam
     ax.scatter(df.loc[mask, "E(V/cm)"], df.loc[mask, "r_fitted(um)"],
-               c=[family_colors[fam]], s=25, alpha=0.8, label=fam, edgecolors="k", linewidths=0.2)
+               c=[family_colors[fam]], s=15, alpha=0.8, label=fam,
+               edgecolors="k", linewidths=0.2)
 ax.set_xscale("log")
 ax.set_yscale("log")
-ax.set_xlabel("E (V/cm)", fontsize=12)
-ax.set_ylabel("r (μm)", fontsize=12)
-ax.set_title("(a) Raw data: no universal trend", fontsize=12)
-ax.legend(fontsize=6, ncol=2, loc="upper right")
+ax.set_xlabel(r"$E$ (V/cm)")
+ax.set_ylabel(r"$r$ ($\mu$m)")
+ax.set_title(r"$\mathbf{(a)}$ Raw data", fontsize=9, loc="left")
+ax.legend(fontsize=4.5, ncol=2, loc="upper right",
+          handlelength=0.8, labelspacing=0.2, borderpad=0.3)
 
 # Panel b: r/λ vs E → collapse onto 1/E
 ax = axes[1]
@@ -164,35 +204,54 @@ for fam in families:
     mask = df["Family"] == fam
     r_norm = df.loc[mask, "r_fitted(um)"] / df.loc[mask, "lambda(V·um)"]
     ax.scatter(df.loc[mask, "E(V/cm)"], r_norm,
-               c=[family_colors[fam]], s=25, alpha=0.8, label=fam, edgecolors="k", linewidths=0.2)
+               c=[family_colors[fam]], s=15, alpha=0.8, label=fam,
+               edgecolors="k", linewidths=0.2)
 
 E_line = np.logspace(np.log10(20), np.log10(2000), 100)
-ax.plot(E_line, 1 / E_line, "k-", linewidth=1.5, label="r/λ = 1/E")
+ax.plot(E_line, 1 / E_line, "-", color=C_BLACK, linewidth=1.0, label=r"$r/\lambda = 1/E$")
 ax.set_xscale("log")
 ax.set_yscale("log")
-ax.set_xlabel("E (V/cm)", fontsize=12)
-ax.set_ylabel("r / λ", fontsize=12)
-ax.set_title("(b) Universal collapse: r/λ = 1/E", fontsize=12)
-ax.legend(fontsize=6, ncol=2, loc="upper right")
+ax.set_xlabel(r"$E$ (V/cm)")
+ax.set_ylabel(r"$r\,/\,\lambda$")
+ax.set_title(r"$\mathbf{(b)}$ Universal collapse", fontsize=9, loc="left")
+ax.legend(fontsize=4.5, ncol=2, loc="upper right",
+          handlelength=0.8, labelspacing=0.2, borderpad=0.3)
 
 fig.tight_layout()
-fig.savefig(FIGURES_PATH / "universal_scaling_collapse.png", dpi=200)
+fig.savefig(FIGURES_PATH / "universal_scaling_collapse.png", dpi=300)
+fig.savefig(FIGURES_PATH / "universal_scaling_collapse.pdf")
 print(f"  Saved figures/universal_scaling_collapse.png")
 
 # Figure 3: Lambda by family (box plot)
-fig, ax = plt.subplots(figsize=(10, 5))
-family_order = fam_stats.index.tolist()
-data_by_fam = [df[df["Family"] == f]["lambda(V·um)"].values for f in family_order]
-bp = ax.boxplot(data_by_fam, labels=family_order, patch_artist=True)
+df_plot = df.copy()
+em_mask = df_plot["Phenomenon"] == "electromigration"
+df_plot.loc[em_mask, "Family"] = "EM (" + df_plot.loc[em_mask, "Family"] + ")"
+
+fam_stats_plot = df_plot.groupby("Family")["lambda(V·um)"].agg(["mean", "std", "count"])
+fam_stats_plot = fam_stats_plot.sort_values("mean")
+family_order_plot = fam_stats_plot.index.tolist()
+data_by_fam = [df_plot[df_plot["Family"] == f]["lambda(V·um)"].values for f in family_order_plot]
+
+fig, ax = plt.subplots(figsize=(6.75, 3.0))
+bp = ax.boxplot(data_by_fam, labels=family_order_plot, patch_artist=True,
+                medianprops=dict(color=C_VERMILLION, lw=0.8),
+                whiskerprops=dict(lw=0.5), capprops=dict(lw=0.5),
+                flierprops=dict(ms=3, markeredgewidth=0.3))
 for i, patch in enumerate(bp["boxes"]):
-    patch.set_facecolor(family_colors[family_order[i]])
-    patch.set_alpha(0.7)
-ax.set_ylabel("λ (V·μm)", fontsize=12)
-ax.set_title("Voltivity Hierarchy by Material Family", fontsize=13)
+    fam = family_order_plot[i]
+    base_fam = fam.replace("EM (", "").replace(")", "") if fam.startswith("EM") else fam
+    c = family_colors.get(base_fam, "0.7")
+    patch.set_facecolor(c)
+    patch.set_alpha(0.5 if fam.startswith("EM") else 0.7)
+    patch.set_linewidth(0.5)
+    if fam.startswith("EM"):
+        patch.set_hatch("//")
+ax.set_ylabel(r"$\lambda$ (V$\cdot\mu$m)")
 ax.set_yscale("log")
-plt.xticks(rotation=45, ha="right")
+plt.xticks(rotation=45, ha="right", fontsize=7)
 fig.tight_layout()
-fig.savefig(FIGURES_PATH / "lambda_hierarchy.png", dpi=200)
+fig.savefig(FIGURES_PATH / "lambda_hierarchy.png", dpi=300)
+fig.savefig(FIGURES_PATH / "lambda_hierarchy.pdf")
 print(f"  Saved figures/lambda_hierarchy.png")
 
 print(f"\nDone. All figures saved to {FIGURES_PATH}/")
